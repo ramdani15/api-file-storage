@@ -1,0 +1,4 @@
+node_modules/
+public/uploads/*
+config/config.env
+config/.env
