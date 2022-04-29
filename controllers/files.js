@@ -3,12 +3,14 @@ var fs = require('fs');
 
 // @params      Directory with Filename $path
 var getDetailFile = function (req, path) {
-    fullUrl = req.protocol + '://' + req.get('host') + '/' + process.env.UPLOAD_FOLDER + '/' + path;
-    fullpath = `${process.env.FILE_UPLOAD_PATH}/${path}`;
+    url = `${process.env.UPLOAD_FOLDER}/${path}`;
+    fullPath = `${process.env.FILE_UPLOAD_PATH}/${url}`;
+    fullUrl = req.protocol + '://' + req.get('host') + '/' + url;
     return data = {
         path: path,
-        fullpath: fullpath,
-        url: fullUrl
+        fullPath: fullPath,
+        url: url,
+        fullUrl: fullUrl
     };
 }
 
@@ -17,7 +19,7 @@ var getDetailFile = function (req, path) {
 // @access      Private
 exports.getFile = async (req, res, next) => {
     path = req.body.path;
-    fullpath = `${process.env.FILE_UPLOAD_PATH}/${path}`;
+    fullPath = `${process.env.FILE_UPLOAD_PATH}/${process.env.UPLOAD_FOLDER}/${path}`;
     // Check Params
     if (!path) {
         return next(new ErrorResponse(`Please input path`, 400));
@@ -28,7 +30,7 @@ exports.getFile = async (req, res, next) => {
     message = 'Not Found';
     data = null
 
-    if (fs.existsSync(fullpath)) {
+    if (fs.existsSync(fullPath)) {
         code = 200;
         status = true;
         message = 'success';
@@ -69,7 +71,7 @@ exports.fileUpload = async (req, res, next) => {
 
     const file = files.file;
     path = `${env}/${path}`;
-    let dir = `${process.env.FILE_UPLOAD_PATH}/${path}`;
+    let dir = `${process.env.FILE_UPLOAD_PATH}/${process.env.UPLOAD_FOLDER}/${path}`;
     let fullpath = `${dir}/${filename}`;
 
     // Create if Directory not exists
