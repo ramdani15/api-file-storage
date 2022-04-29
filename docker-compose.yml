@@ -2,9 +2,11 @@ version: "3.8"
 services:
   api:
     build: .
+    container_name: cdn_api
+    hostname: api
     command: npm run dev
     volumes:
-      - .:/usr/app/
-      - /usr/app/node_modules
+      - .:/app/
+      - /app/node_modules
     ports:
       - "3000:3000"
