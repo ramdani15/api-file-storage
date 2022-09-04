@@ -1,4 +1,4 @@
-# CDN API
+# API File Storage
 
 > Store and Get Files with API for Storage
 
