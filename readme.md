@@ -4,7 +4,7 @@
 
 ## Usage
 
-Rename "config/.env-example" to "config/.env" and update the values/settings to your own
+Rename "config/.env.example" to "config/.env" and update the values/settings to your own
 
 ## Install Dependencies and Run App
 ```

@@ -2,7 +2,7 @@ version: "3.8"
 services:
   api:
     build: .
-    container_name: cdn_api
+    container_name: api_file_storage
     hostname: api
     command: npm run dev
     volumes:

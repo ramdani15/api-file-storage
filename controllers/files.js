@@ -2,14 +2,12 @@ const ErrorResponse = require('../utils/errorResponse');
 var fs = require('fs');
 
 // @params      Directory with Filename $path
-var getDetailFile = function (req, path) {
-    url = `${process.env.UPLOAD_FOLDER}/${path}`;
-    fullPath = `${process.env.FILE_UPLOAD_PATH}/${url}`;
-    fullUrl = req.protocol + '://' + req.get('host') + '/' + url;
-    return data = {
+let getDetailFile = function (req, path) {
+    let fullPath = `${process.env.FILE_UPLOAD_PATH}/${process.env.UPLOAD_FOLDER}/${path}`;
+    let fullUrl = req.protocol + '://' + req.get('host') + '/' + url;
+    return {
         path: path,
         fullPath: fullPath,
-        url: url,
         fullUrl: fullUrl
     };
 }
@@ -18,17 +16,18 @@ var getDetailFile = function (req, path) {
 // @route       GET /api/v1/files
 // @access      Private
 exports.getFile = async (req, res, next) => {
-    path = req.body.path;
-    fullPath = `${process.env.FILE_UPLOAD_PATH}/${process.env.UPLOAD_FOLDER}/${path}`;
+    // with file name
+    let path = req.body.path;
+    let fullPath = `${process.env.FILE_UPLOAD_PATH}/${process.env.UPLOAD_FOLDER}/${path}`;
     // Check Params
     if (!path) {
         return next(new ErrorResponse(`Please input path`, 400));
     }
 
-    code = 404;
-    status = false;
-    message = 'Not Found';
-    data = null
+    let code = 404;
+    let status = false;
+    let message = 'Not Found';
+    let data = null
 
     if (fs.existsSync(fullPath)) {
         code = 200;
@@ -53,8 +52,9 @@ exports.getFile = async (req, res, next) => {
 exports.fileUpload = async (req, res, next) => {
     let files = req.files;
     let filename = req.body.filename;
-    let env = req.body.env;
-    let path = req.body.path;
+    let envName = req.body.env;
+    let bucket = req.body.bucket;
+
     // Check Params
     if (!files) {
         return next(new ErrorResponse(`Please upload a file`, 400));
@@ -62,35 +62,41 @@ exports.fileUpload = async (req, res, next) => {
     if (!filename) {
         return next(new ErrorResponse(`Please set filename`, 400));
     }
-    if (!env) {
-        return next(new ErrorResponse(`Please set env`, 400));
+    if (!envName) {
+        return next(new ErrorResponse(`Please set envName`, 400));
     }
-    if (!path) {
-        return next(new ErrorResponse(`Please set path`, 400));
+    if (!bucket) {
+        return next(new ErrorResponse(`Please set bucket`, 400));
     }
 
+    // Set path/upload folder
     const file = files.file;
-    path = `${env}/${path}`;
+    const today = new Date();
+    const uniqueCode = Math.floor(today.getTime() / 1000);
+    let path = `${envName}/${bucket}/${today.getFullYear()}/${today.getMonth()}/${today.getDate()}/${uniqueCode}`;
     let dir = `${process.env.FILE_UPLOAD_PATH}/${process.env.UPLOAD_FOLDER}/${path}`;
-    let fullpath = `${dir}/${filename}`;
+    let fullPath = `${dir}/${filename}`;
 
     // Create if Directory not exists
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
     }
 
-    // Check filesize
-    if (file.size > process.env.MAX_FILE_UPLOAD) {
-        return next(new ErrorResponse(`Please upload an file less than ${process.env.MAX_FILE_UPLOAD}`, 400));
+    // Check max size
+    let maxFileSizeMb = process.env.MAX_FILE_UPLOAD;
+    let maxFileSizeBytes = maxFileSizeMb * 1000000;
+    if (file.size > maxFileSizeBytes) {
+        return next(new ErrorResponse(`Please upload an file less than ${maxFileSizeMb}`, 400));
     }
 
-    file.mv(fullpath, async err => {
+    file.mv(fullPath, async err => {
         if (err) {
             console.log(err);
             return next(new ErrorResponse(`Problem with file upload`, 500));
         }
 
-        data = getDetailFile(req, `${path}/${filename}`);
+        let data = getDetailFile(req, `${path}/${filename}`);
+        data['uniqueCode'] = uniqueCode;
 
         let response = {
             "code": 201,
