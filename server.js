@@ -1,7 +1,7 @@
 const path = require('path');
 const express = require('express');
 const dotenv = require('dotenv');
-const logger = require('./middlewares/logger');
+// const logger = require('./middlewares/logger');
 const fileupload = require('express-fileupload');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
@@ -11,6 +11,8 @@ const hpp = require('hpp');
 const cors = require('cors');
 const errorHandler = require('./middlewares/error');
 const morgan = require('morgan');
+const swaggerJsdoc = require("swagger-jsdoc");
+const swaggerUi = require("swagger-ui-express");
 const app = express();
 
 // Body parser
@@ -25,6 +27,7 @@ const files = require('./routes/files');
 // Load env vars
 dotenv.config({ path: './config/.env' });
 
+// TODO: show log in log file
 // Custom Middleware
 // app.use(logger);
 
@@ -55,11 +58,51 @@ app.use(hpp());
 // Enable CORS
 app.use(cors());
 
+// Swagger config
+const swaggerDefinition = {
+    openapi: "3.0.0",
+    info: {
+        title: "API File Storage",
+        version: "0.0.1",
+        description:
+            "This is a simple API for uploading and getting files.",
+        license: {
+            name: "MIT",
+            url: "https://spdx.org/licenses/MIT.html",
+        },
+        contact: {
+            name: "Ramdani",
+            url: "https://github.com/ramdani15",
+            email: "ramdaninformatika@gmail.com",
+        },
+    },
+    components: {
+        securitySchemes: {
+            bearerAuth: {
+                type: 'http',
+                scheme: 'bearer',
+                bearerFormat: 'JWT',
+            }
+        }
+    },
+    security: [{
+        bearerAuth: []
+    }]
+};
+const swaggerOptions = {
+    swaggerDefinition,
+    apis: ["./routes/*.js"],
+};
+
+const swaggerSpecs = swaggerJsdoc(swaggerOptions);
+
 // Set static folder
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Mount routers
+// TODO: refactor routes versioning
 app.use('/api/v1/files', files);
+app.use("/api/v1/swagger", swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
 
 app.use(errorHandler);
 
