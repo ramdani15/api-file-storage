@@ -1,3 +1,4 @@
+const fs = require('fs')
 const path = require('path');
 const express = require('express');
 const dotenv = require('dotenv');
@@ -27,14 +28,15 @@ const files = require('./routes/files');
 // Load env vars
 dotenv.config({ path: './config/.env' });
 
-// TODO: show log in log file
 // Custom Middleware
 // app.use(logger);
 
-// Dev logging middleware
-if (process.env.NODE_ENV === 'development') {
-    app.use(morgan('dev'));
-}
+// Create Logger file
+// app.use(morgan('dev'));
+let today = new Date();
+let fileName = process.env.NODE_ENV + '-' + today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate() + '.log';
+let accessLogStream = fs.createWriteStream(path.join(__dirname + "/logs", fileName), { flags: 'a' })
+app.use(morgan('combined', { stream: accessLogStream }))
 
 // File uploading
 app.use(fileupload());
