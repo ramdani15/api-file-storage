@@ -17,7 +17,7 @@ let getDetailFile = function (req, path) {
 // @access      Private
 exports.getFile = async (req, res, next) => {
     // with file name
-    let path = req.body.path;
+    let path = req.path;
     let fullPath = `${process.env.FILE_UPLOAD_PATH}/${process.env.UPLOAD_FOLDER}/${path}`;
     // Check Params
     if (!path) {
@@ -37,13 +37,12 @@ exports.getFile = async (req, res, next) => {
     }
 
     let response = {
-        "code": code,
         "status": status,
         "message": message,
         "data": data
     }
 
-    res.status(response['code']).json((response))
+    res.status(code).json((response))
 };
 
 // @desc        Upload File
@@ -99,11 +98,10 @@ exports.fileUpload = async (req, res, next) => {
         data['uniqueCode'] = uniqueCode;
 
         let response = {
-            "code": 201,
             "status": true,
             "message": "success",
             "data": data
         }
-        res.status(response['code']).json((response))
+        res.status(201).json((response))
     });
 };
