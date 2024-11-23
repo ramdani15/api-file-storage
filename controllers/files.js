@@ -4,7 +4,7 @@ var fs = require('fs');
 // @params      Directory with Filename $path
 let getDetailFile = function (req, path) {
     let fullPath = `${process.env.FILE_UPLOAD_PATH}/${process.env.UPLOAD_FOLDER}/${path}`;
-    let fullUrl = req.protocol + '://' + req.get('host') + '/' + url;
+    let fullUrl = req.protocol + '://' + req.get('host') + '/' + fullPath;
     return {
         path: path,
         fullPath: fullPath,
