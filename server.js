@@ -35,7 +35,13 @@ dotenv.config({ path: './config/.env' });
 // app.use(morgan('dev'));
 let today = new Date();
 let fileName = process.env.NODE_ENV + '-' + today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate() + '.log';
-let accessLogStream = fs.createWriteStream(path.join(__dirname + "/logs", fileName), { flags: 'a' })
+let logDir = path.join(__dirname, 'logs');
+// Create the directory if it doesn't exist
+if (!fs.existsSync(logDir)) {
+    fs.mkdirSync(logDir, { recursive: true });
+}
+// Create the write stream
+let accessLogStream = fs.createWriteStream(path.join(logDir, fileName), { flags: 'a' });
 app.use(morgan('combined', { stream: accessLogStream }))
 
 // File uploading
