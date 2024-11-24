@@ -2,10 +2,10 @@ const ErrorResponse = require('../utils/errorResponse');
 var fs = require('fs');
 
 // @params      Directory with Filename $path
-let getDetailFile = function (req, path) {
+let getDetailFile = function (path) {
     let pathFile = `${process.env.UPLOAD_FOLDER}/${path}`;
     let fullPath = `${process.env.FILE_UPLOAD_PATH}/${pathFile}`;
-    let fullUrl = req.protocol + '://' + req.get('host') + '/' + pathFile;
+    let fullUrl = `${process.env.APP_URL}/${pathFile}`;
     return {
         path: path,
         fullPath: fullPath,
@@ -34,7 +34,7 @@ exports.getFile = async (req, res, next) => {
         code = 200;
         status = true;
         message = 'success';
-        data = getDetailFile(req, path)
+        data = getDetailFile(path)
     }
 
     let response = {
@@ -95,7 +95,7 @@ exports.fileUpload = async (req, res, next) => {
             return next(new ErrorResponse(`Problem with file upload`, 500));
         }
 
-        let data = getDetailFile(req, `${path}/${filename}`);
+        let data = getDetailFile(`${path}/${filename}`);
         data['uniqueCode'] = uniqueCode;
 
         let response = {
